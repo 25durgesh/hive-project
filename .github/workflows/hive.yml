@@ -1,33 +1,22 @@
-name: Basic Working Pipeline
+name: Run Hive Queries
 
 on:
   push:
-    branches:
-      - main
+    paths:
+      - 'hive-scripts/*.hql'
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  run-hive:
+    runs-on: self-hosted
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Show project structure
+      - name: Run Hive Script
         run: |
-          echo "Listing files..."
-          ls -R
-
-      - name: Run simple test
-        run: |
-          echo "Pipeline is working successfully "
-
-      - name: Create output file
-        run: |
-          echo "Hello Durgesh, your pipeline is successful!" > output.txt
-
-      - name: Upload output
-        uses: actions/upload-artifact@v4
-        with:
-          name: basic-output
-          path: output.txt
+          echo "Running Hive queries..."
+          for file in hive-scripts/*.hql
+          do
+            hive -f $file
+          done

@@ -1,0 +1,29 @@
+name: Hive Automation Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  run-hive:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+
+      - name: Install Hive
+        run: |
+          sudo apt update
+          sudo apt install -y hive
+
+      - name: Run Hive Script
+        run: |
+          hive -f scripts/student_analysis.hql

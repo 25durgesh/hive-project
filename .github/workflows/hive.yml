@@ -20,22 +20,13 @@ jobs:
           echo "Scripts folder:"
           ls scripts
 
-      - name: Install Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '8'
-
-      #  You can REMOVE this (not needed with Docker)
-      # - name: Install Hadoop & Hive
-      #   run: ...
-
-      #  Also REMOVE env variables (not needed)
-
       - name: Run Hive Script via Docker
         run: |
-          docker run --rm -v ${{ github.workspace }}:/app apache/hive:3.1.3 \
-          hive -f /app/scripts/hive_script.hql > output.txt
+          docker run --rm \
+          -v ${{ github.workspace }}:/app \
+          apache/hive:3.1.3 \
+          hive --hiveconf hive.execution.engine=mr \
+          -f /app/scripts/hive_script.hql > output.txt
 
       - name: Upload Output
         uses: actions/upload-artifact@v4

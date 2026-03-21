@@ -13,19 +13,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Load Environment & Run Hive
-        shell: bash
+      - name: Initialize Hive Metastore
         run: |
-          echo "Loading environment variables..."
+          echo "Initializing Hive metastore..."
+          schematool -initSchema -dbType derby || echo "Already initialized"
 
-          # Force load full environment
-          export HADOOP_HOME=/usr/local/hadoop
-          export HIVE_HOME=/usr/local/hive
-          export PATH=$PATH:$HIVE_HOME/bin
+      - name: Run Hive Script
+        run: |
+          echo "Loading environment..."
+          source ~/.bashrc
 
           echo "Checking Hive..."
-          which hive || echo "Hive not found"
-          hive --version || echo "Hive version failed"
+          which hive
+          hive --version
 
           echo "Running Hive queries..."
           for file in hive-scripts/*.hql

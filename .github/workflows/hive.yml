@@ -13,21 +13,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Initialize Hive Metastore
-        run: |
-          echo "Initializing Hive metastore..."
-          schematool -initSchema -dbType derby || echo "Already initialized"
-
-      - name: Run Hive Script
+      - name: Load Environment
         run: |
           echo "Loading environment..."
           source ~/.bashrc
 
-          echo "Checking Hive..."
-          which hive
-          hive --version
+          export HADOOP_HOME=/usr/local/hadoop
+          export HIVE_HOME=/usr/local/hive
+          export PATH=$PATH:$HIVE_HOME/bin
 
+          which hive
+
+      - name: Initialize Hive Metastore
+        run: |
+          echo "Initializing metastore..."
+
+          # remove old metastore (force clean start)
+          rm -rf metastore_db
+
+          schematool -initSchema -dbType derby
+
+      - name: Run Hive Script
+        run: |
           echo "Running Hive queries..."
+
           for file in hive-scripts/*.hql
           do
             echo "Executing $file"

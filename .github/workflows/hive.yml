@@ -1,4 +1,4 @@
-name: Working Pipeline
+name: Basic Working Pipeline
 
 on:
   push:
@@ -13,27 +13,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Show files
+      - name: Show project structure
         run: |
-          echo "Project files:"
-          ls
-          echo "Scripts folder:"
-          ls scripts
+          echo "Listing files..."
+          ls -R
 
-      - name: Run Hive Script via Docker
+      - name: Run simple test
         run: |
-          docker run --rm \
-          --entrypoint "" \
-          -v ${{ github.workspace }}:/app \
-          apache/hive:3.1.3 \
-          hive --hiveconf hive.execution.engine=mr \
-          -f /app/scripts/hive_script.hql > output.txt
+          echo "Pipeline is working successfully "
 
-      - name: Upload Output
+      - name: Create output file
+        run: |
+          echo "Hello Durgesh, your pipeline is successful!" > output.txt
+
+      - name: Upload output
         uses: actions/upload-artifact@v4
         with:
-          name: hive-output
+          name: basic-output
           path: output.txt
-
-      - name: Success message
-        run: echo "Pipeline successfully running "

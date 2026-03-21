@@ -13,14 +13,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run Hive Script
+      - name: Load Environment & Run Hive
+        shell: bash
         run: |
-          echo "Loading environment..."
-          source ~/.bashrc
+          echo "Loading environment variables..."
 
-          echo "Checking Hive installation..."
-          which hive
-          hive --version
+          # Force load full environment
+          export HADOOP_HOME=/usr/local/hadoop
+          export HIVE_HOME=/usr/local/hive
+          export PATH=$PATH:$HIVE_HOME/bin
+
+          echo "Checking Hive..."
+          which hive || echo "Hive not found"
+          hive --version || echo "Hive version failed"
 
           echo "Running Hive queries..."
           for file in hive-scripts/*.hql

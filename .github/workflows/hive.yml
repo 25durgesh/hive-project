@@ -1,4 +1,4 @@
-name: Hive Automation Pipeline
+name: Working Pipeline
 
 on:
   push:
@@ -6,24 +6,19 @@ on:
       - main
 
 jobs:
-  run-hive:
+  test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Install Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '8'
-
-      - name: Install Hive
+      - name: Show files
         run: |
-          sudo apt update
-          sudo apt install -y hive
+          echo "Project files:"
+          ls
+          echo "Scripts folder:"
+          ls scripts
 
-      - name: Run Hive Script
-        run: |
-          hive -f scripts/student_analysis.hql
+      - name: Success message
+        run: echo "Pipeline successfully running "

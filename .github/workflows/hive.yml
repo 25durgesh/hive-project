@@ -1,50 +1,30 @@
-name: Run Hive Queries
+name: Basic Working Pipeline
 
 on:
   push:
-    paths:
-      - 'hive-scripts/*.hql'
+    branches:
+      - main
 
 jobs:
-  run-hive:
-    runs-on: self-hosted
+  test:
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Debug Environment
+      - name: Show project structure
         run: |
-          echo "Current User: $(whoami)"
-          echo "Working Directory: $(pwd)"
-          echo "Hive Version:"
-          hive --version || echo "Hive not found!"
-
-      - name: Check Hive Metastore
+          echo "Listing files..."
+          ls -R
+      - name: Run simple test
         run: |
-          echo "Checking Hive Metastore..."
-          nc -zv localhost 9083 || echo "Metastore not running!"
-
-      - name: Run Hive Scripts
+          echo "Pipeline is working successfully "
+      - name: Create output file
         run: |
-          echo "Running Hive queries..."
-
-          if ls hive-scripts/*.hql 1> /dev/null 2>&1; then
-            for file in hive-scripts/*.hql
-            do
-              echo "-----------------------------------"
-              echo "Executing: $file"
-              hive -f "$file"
-
-              if [ $? -ne 0 ]; then
-                echo "Error while executing $file"
-                exit 1
-              fi
-            done
-          else
-            echo "No .hql files found!"
-            exit 1
-          fi
-
-      - name: Success Message
-        run: echo "All Hive scripts executed successfully 🎉"
+          echo "Hello Durgesh, your pipeline is successful!" > output.txt
+      - name: Upload output
+        uses: actions/upload-artifact@v4
+        with:
+          name: basic-output
+          path: output.txt

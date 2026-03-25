@@ -10,35 +10,41 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Load Environment
+      - name: Debug Environment
         run: |
-          echo "Loading environment..."
-          source ~/.bashrc
+          echo "Current User: $(whoami)"
+          echo "Working Directory: $(pwd)"
+          echo "Hive Version:"
+          hive --version || echo "Hive not found!"
 
-          export HADOOP_HOME=/usr/local/hadoop
-          export HIVE_HOME=/usr/local/hive
-          export PATH=$PATH:$HIVE_HOME/bin
-
-          which hive
-
-      - name: Initialize Hive Metastore
+      - name: Check Hive Metastore
         run: |
-          echo "Initializing metastore..."
+          echo "Checking Hive Metastore..."
+          nc -zv localhost 9083 || echo "Metastore not running!"
 
-          # remove old metastore (force clean start)
-          rm -rf metastore_db
-
-          schematool -initSchema -dbType derby
-
-      - name: Run Hive Script
+      - name: Run Hive Scripts
         run: |
           echo "Running Hive queries..."
 
-          for file in hive-scripts/*.hql
-          do
-            echo "Executing $file"
-            hive -f $file
-          done
+          if ls hive-scripts/*.hql 1> /dev/null 2>&1; then
+            for file in hive-scripts/*.hql
+            do
+              echo "-----------------------------------"
+              echo "Executing: $file"
+              hive -f "$file"
+
+              if [ $? -ne 0 ]; then
+                echo "Error while executing $file"
+                exit 1
+              fi
+            done
+          else
+            echo "No .hql files found!"
+            exit 1
+          fi
+
+      - name: Success Message
+        run: echo "All Hive scripts executed successfully 🎉"
